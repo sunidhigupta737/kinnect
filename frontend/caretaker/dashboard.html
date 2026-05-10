@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Kinnect — Dashboard</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧡</text></svg>">
+  <link rel="stylesheet" href="/css/style.css"/>
+  <link rel="stylesheet" href="/css/dashboard.css"/>
+</head>
+<body>
+<div id="toast"></div>
+<div class="app">
+  <aside class="sidebar">
+    <div class="sidebar-logo">🧡 Kinnect</div>
+    <nav>
+      <div class="nav-item active" onclick="showPage('dashboard',this)"><span class="nav-icon">🏠</span><span>Dashboard</span></div>
+      <div class="nav-item" onclick="showPage('people',this)"><span class="nav-icon">👥</span><span>People</span></div>
+      <div class="nav-item" onclick="showPage('medicines',this)"><span class="nav-icon">💊</span><span>Medicines</span></div>
+      <div class="nav-item" onclick="showPage('appointments',this)"><span class="nav-icon">📅</span><span>Appointments</span></div>
+      <div class="nav-item" onclick="showPage('notes',this)"><span class="nav-icon">📝</span><span>Memory Notes</span></div>
+    </nav>
+    <div class="sidebar-bottom">
+      <div class="user-info"><strong id="sidebarName">—</strong>Caretaker</div>
+      <button class="btn btn-outline btn-full btn-sm" onclick="logout()">Logout</button>
+    </div>
+  </aside>
+  <main class="main">
+
+    <!-- DASHBOARD -->
+    <div id="page-dashboard">
+      <div class="page-header">
+        <div><h1 id="dashGreeting">Good morning 🌅</h1><p id="dashSub">Here's an overview of your patient's care.</p></div>
+      </div>
+      <div class="patient-link-box">
+        <h3>📱 Patient Screen Link</h3>
+        <p>Bookmark this on the patient's tablet. No login needed.</p>
+        <div class="link-copy"><span id="patientLink">—</span><button class="copy-btn" onclick="copyLink()">Copy</button></div>
+      </div>
+      <div class="stats">
+        <div class="stat-card"><div class="stat-icon">👥</div><div class="stat-num" id="statPeople">0</div><div class="stat-label">People</div></div>
+        <div class="stat-card"><div class="stat-icon">💊</div><div class="stat-num" id="statMeds">0</div><div class="stat-label">Medicines</div></div>
+        <div class="stat-card"><div class="stat-icon">📅</div><div class="stat-num" id="statAppts">0</div><div class="stat-label">Appointments</div></div>
+        <div class="stat-card"><div class="stat-icon">📝</div><div class="stat-num" id="statNotes">0</div><div class="stat-label">Notes</div></div>
+      </div>
+      <div class="grid-2">
+        <div class="section-card"><h2>💊 Today's Medicines</h2><div id="dashMeds"></div></div>
+        <div class="section-card"><h2>📅 Upcoming Appointments</h2><div id="dashAppts"></div></div>
+      </div>
+    </div>
+
+    <!-- PEOPLE -->
+    <div id="page-people" class="hidden">
+      <div class="page-header"><div><h1>👥 People</h1><p>Family, friends, and doctors.</p></div><button class="btn btn-primary" onclick="openModal('addPersonModal')">+ Add Person</button></div>
+      <div id="peopleList"></div>
+    </div>
+
+    <!-- MEDICINES -->
+    <div id="page-medicines" class="hidden">
+      <div class="page-header"><div><h1>💊 Medicines</h1><p>Daily medicines and timings.</p></div><button class="btn btn-primary" onclick="openModal('addMedModal')">+ Add Medicine</button></div>
+      <div id="medsList"></div>
+    </div>
+
+    <!-- APPOINTMENTS -->
+    <div id="page-appointments" class="hidden">
+      <div class="page-header"><div><h1>📅 Appointments</h1><p>Upcoming doctor visits.</p></div><button class="btn btn-primary" onclick="openModal('addApptModal')">+ Add Appointment</button></div>
+      <div id="apptsList"></div>
+    </div>
+
+    <!-- NOTES -->
+    <div id="page-notes" class="hidden">
+      <div class="page-header"><div><h1>📝 Memory Notes</h1><p>Helpful reminders for the patient.</p></div><button class="btn btn-primary" onclick="openModal('addNoteModal')">+ Add Note</button></div>
+      <div id="notesList"></div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ADD PERSON MODAL -->
+<div class="overlay" id="addPersonModal">
+  <div class="modal">
+    <div class="modal-head"><h3>👤 Add Person</h3><button class="modal-close" onclick="closeModal('addPersonModal')">✕</button></div>
+    <img id="photoPreview" style="width:80px;height:80px;border-radius:50%;object-fit:cover;margin-bottom:10px;display:none" src="" alt=""/>
+    <div class="form-group"><label>Photo</label><input type="file" id="personPhoto" accept="image/*" onchange="previewPhoto(this)"/></div>
+    <div class="form-group"><label>Full Name</label><input type="text" id="personName" placeholder="e.g. Sara Khan"/></div>
+    <div class="form-group"><label>Relation</label><input type="text" id="personRelation" placeholder="e.g. Daughter, Doctor"/></div>
+    <div class="form-group"><label>Phone</label><input type="tel" id="personPhone" placeholder="e.g. 03001234567"/></div>
+    <div class="form-group"><label>Note for Patient</label><textarea id="personNote" placeholder="e.g. She visits every Sunday and loves you very much."></textarea></div>
+    <button class="btn btn-primary btn-full" onclick="addPerson()">Save Person</button>
+  </div>
+</div>
+
+<!-- ADD MEDICINE MODAL -->
+<div class="overlay" id="addMedModal">
+  <div class="modal">
+    <div class="modal-head"><h3>💊 Add Medicine</h3><button class="modal-close" onclick="closeModal('addMedModal')">✕</button></div>
+    <div class="form-group"><label>Medicine Name</label><input type="text" id="medName" placeholder="e.g. Paracetamol"/></div>
+    <div class="form-group"><label>Dosage</label><input type="text" id="medDose" placeholder="e.g. 500mg"/></div>
+    <div class="form-group"><label>Time</label><input type="time" id="medTime"/></div>
+    <div class="form-group"><label>Days</label><select id="medDays"><option>Everyday</option><option>Mon-Fri</option><option>Weekends</option></select></div>
+    <div class="form-group"><label>Note</label><input type="text" id="medNote" placeholder="e.g. Take after food"/></div>
+    <button class="btn btn-primary btn-full" onclick="addMedicine()">Save Medicine</button>
+  </div>
+</div>
+
+<!-- ADD APPOINTMENT MODAL -->
+<div class="overlay" id="addApptModal">
+  <div class="modal">
+    <div class="modal-head"><h3>📅 Add Appointment</h3><button class="modal-close" onclick="closeModal('addApptModal')">✕</button></div>
+    <div class="form-group"><label>Doctor / Clinic</label><input type="text" id="apptDoctor" placeholder="e.g. Dr. Ahmed"/></div>
+    <div class="form-group"><label>Location</label><input type="text" id="apptLocation" placeholder="e.g. City Hospital"/></div>
+    <div class="form-group"><label>Date</label><input type="date" id="apptDate"/></div>
+    <div class="form-group"><label>Time</label><input type="time" id="apptTime"/></div>
+    <div class="form-group"><label>Note</label><input type="text" id="apptNote" placeholder="e.g. Bring previous reports"/></div>
+    <button class="btn btn-primary btn-full" onclick="addAppointment()">Save Appointment</button>
+  </div>
+</div>
+
+<!-- ADD NOTE MODAL -->
+<div class="overlay" id="addNoteModal">
+  <div class="modal">
+    <div class="modal-head"><h3>📝 Add Memory Note</h3><button class="modal-close" onclick="closeModal('addNoteModal')">✕</button></div>
+    <div class="form-group"><label>Emoji</label><select id="noteEmoji"><option>📝</option><option>❤️</option><option>🏠</option><option>🍽️</option><option>🎵</option><option>⭐</option></select></div>
+    <div class="form-group"><label>Title</label><input type="text" id="noteTitle" placeholder="e.g. Your favourite food"/></div>
+    <div class="form-group"><label>Content</label><textarea id="noteContent" placeholder="e.g. You love biryani."></textarea></div>
+    <button class="btn btn-primary btn-full" onclick="addNote()">Save Note</button>
+  </div>
+</div>
+
+<script src="/js/utils.js"></script>
+<script>
+  if (!getToken()) window.location.href = 'auth.html';
+  const user = getUser();
+  document.getElementById('sidebarName').textContent = user?.name || 'Caretaker';
+  const hr = new Date().getHours();
+  document.getElementById('dashGreeting').textContent = hr<12?'Good morning 🌅':hr<17?'Good afternoon ☀️':'Good evening 🌙';
+  document.getElementById('dashSub').textContent = `Here's an overview of ${user?.patientName||'your patient'}'s care.`;
+  const pLink = `${location.origin}/patient/${user?.patientId}`;
+  document.getElementById('patientLink').textContent = pLink;
+
+  function copyLink() { navigator.clipboard.writeText(pLink).then(()=>showToast('Link copied!','success')); }
+
+  function showPage(name, el) {
+    document.querySelectorAll('.main > div').forEach(d=>d.classList.add('hidden'));
+    document.getElementById('page-'+name).classList.remove('hidden');
+    document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+    el.classList.add('active');
+  }
+
+  function previewPhoto(input) {
+    const file = input.files[0]; if(!file) return;
+    const prev = document.getElementById('photoPreview');
+    prev.src = URL.createObjectURL(file); prev.style.display='block';
+  }
+
+  function emptyHTML(icon, msg) { return `<div class="empty"><div class="e-icon">${icon}</div><p>${msg}</p></div>`; }
+
+  // PEOPLE
+  async function loadPeople() {
+    try {
+      const people = await apiFetch('/people');
+      document.getElementById('statPeople').textContent = people.length;
+      const el = document.getElementById('peopleList');
+      if(!people.length){el.innerHTML=emptyHTML('👥','No people added yet.');return;}
+      el.innerHTML = people.map(p=>`
+        <div class="person-card">
+          ${p.photo?`<img class="person-photo" src="${p.photo}" alt="${p.name}"/>`:`<div class="person-photo-placeholder">👤</div>`}
+          <div class="person-info"><h3>${p.name}</h3><p>${p.relation}${p.phone?' · '+p.phone:''}</p>${p.note?`<p style="font-size:12px;color:var(--text-light);margin-top:4px">${p.note}</p>`:''}</div>
+          <div class="person-actions"><button class="btn btn-danger btn-sm" onclick="deletePerson('${p._id}')">Delete</button></div>
+        </div>`).join('');
+    } catch(e){showToast(e.message,'error');}
+  }
+
+  async function addPerson() {
+    const name=document.getElementById('personName').value.trim();
+    const relation=document.getElementById('personRelation').value.trim();
+    const phone=document.getElementById('personPhone').value.trim();
+    const note=document.getElementById('personNote').value.trim();
+    const photo=document.getElementById('personPhoto').files[0];
+    if(!name||!relation) return showToast('Name and relation required','error');
+    const fd=new FormData();
+    fd.append('name',name);fd.append('relation',relation);fd.append('phone',phone);fd.append('note',note);
+    if(photo) fd.append('photo',photo);
+    try {
+      await apiFetch('/people',{method:'POST',body:fd});
+      closeModal('addPersonModal');
+      ['personName','personRelation','personPhone','personNote','personPhoto'].forEach(id=>document.getElementById(id).value='');
+      document.getElementById('photoPreview').style.display='none';
+      showToast('Person added!','success'); loadPeople();
+    } catch(e){showToast(e.message,'error');}
+  }
+
+  async function deletePerson(id) {
+    if(!confirm('Delete this person?')) return;
+    try{await apiFetch('/people/'+id,{method:'DELETE'});showToast('Deleted','error');loadPeople();}
+    catch(e){showToast(e.message,'error');}
+  }
+
+  // MEDICINES
+  async function loadMedicines() {
+    try {
+      const meds = await apiFetch('/medicines');
+      document.getElementById('statMeds').textContent = meds.length;
+      const html = meds.length ? meds.map(m=>`
+        <div class="med-card ${m.taken?'taken':''}">
+          <div class="med-info"><h3>${m.name} <span class="badge ${m.taken?'badge-green':'badge-orange'}">${m.taken?'Taken':'Pending'}</span></h3><p>⏰ ${m.time} · ${m.dose} · ${m.days}</p></div>
+          <div class="med-actions">${!m.taken?`<button class="btn btn-green btn-sm" onclick="markTaken('${m._id}')">✓ Taken</button>`:''}<button class="btn btn-danger btn-sm" onclick="deleteMed('${m._id}')">Delete</button></div>
+        </div>`).join('') : emptyHTML('💊','No medicines added yet.');
+      document.getElementById('medsList').innerHTML = html;
+      document.getElementById('dashMeds').innerHTML  = html;
+    } catch(e){showToast(e.message,'error');}
+  }
+
+  async function addMedicine() {
+    const name=document.getElementById('medName').value.trim();
+    const dose=document.getElementById('medDose').value.trim();
+    const time=document.getElementById('medTime').value;
+    const days=document.getElementById('medDays').value;
+    const note=document.getElementById('medNote').value.trim();
+    if(!name||!dose||!time) return showToast('Name, dose and time required','error');
+    try {
+      await apiFetch('/medicines',{method:'POST',body:JSON.stringify({name,dose,time,days,note})});
+      closeModal('addMedModal');
+      ['medName','medDose','medTime','medNote'].forEach(id=>document.getElementById(id).value='');
+      showToast('Medicine added!','success'); loadMedicines();
+    } catch(e){showToast(e.message,'error');}
+  }
+
+  async function markTaken(id) {
+    try{await apiFetch('/medicines/'+id,{method:'PUT',body:JSON.stringify({taken:true})});showToast('Marked as taken!','success');loadMedicines();}
+    catch(e){showToast(e.message,'error');}
+  }
+
+  async function deleteMed(id) {
+    if(!confirm('Delete?')) return;
+    try{await apiFetch('/medicines/'+id,{method:'DELETE'});showToast('Deleted','error');loadMedicines();}
+    catch(e){showToast(e.message,'error');}
+  }
+
+  // APPOINTMENTS
+  async function loadAppointments() {
+    try {
+      const appts = await apiFetch('/appointments');
+      document.getElementById('statAppts').textContent = appts.length;
+      const html = appts.length ? appts.map(a=>`
+        <div class="appt-card">
+          <div class="appt-info"><h3>${a.doctor}</h3><p>📅 ${a.date} · ⏰ ${a.time}${a.location?' · 📍'+a.location:''}</p></div>
+          <button class="btn btn-danger btn-sm" onclick="deleteAppt('${a._id}')">Delete</button>
+        </div>`).join('') : emptyHTML('📅','No appointments yet.');
+      document.getElementById('apptsList').innerHTML = html;
+      document.getElementById('dashAppts').innerHTML  = html;
+    } catch(e){showToast(e.message,'error');}
+  }
+
+  async function addAppointment() {
+    const doctor=document.getElementById('apptDoctor').value.trim();
+    const location=document.getElementById('apptLocation').value.trim();
+    const date=document.getElementById('apptDate').value;
+    const time=document.getElementById('apptTime').value;
+    const note=document.getElementById('apptNote').value.trim();
+    if(!doctor||!date||!time) return showToast('Doctor, date and time required','error');
+    try {
+      await apiFetch('/appointments',{method:'POST',body:JSON.stringify({doctor,location,date,time,note})});
+      closeModal('addApptModal');
+      ['apptDoctor','apptLocation','apptDate','apptTime','apptNote'].forEach(id=>document.getElementById(id).value='');
+      showToast('Appointment added!','success'); loadAppointments();
+    } catch(e){showToast(e.message,'error');}
+  }
+
+  async function deleteAppt(id) {
+    if(!confirm('Delete?')) return;
+    try{await apiFetch('/appointments/'+id,{method:'DELETE'});showToast('Deleted','error');loadAppointments();}
+    catch(e){showToast(e.message,'error');}
+  }
+
+  // NOTES
+  async function loadNotes() {
+    try {
+      const notes = await apiFetch('/notes');
+      document.getElementById('statNotes').textContent = notes.length;
+      const el = document.getElementById('notesList');
+      if(!notes.length){el.innerHTML=emptyHTML('📝','No notes yet.');return;}
+      el.innerHTML = notes.map(n=>`
+        <div class="note-card">
+          <h3>${n.emoji} ${n.title}</h3><p>${n.content}</p>
+          <div class="note-card-foot"><button class="btn btn-danger btn-sm" onclick="deleteNote('${n._id}')">Delete</button></div>
+        </div>`).join('');
+    } catch(e){showToast(e.message,'error');}
+  }
+
+  async function addNote() {
+    const title=document.getElementById('noteTitle').value.trim();
+    const content=document.getElementById('noteContent').value.trim();
+    const emoji=document.getElementById('noteEmoji').value;
+    if(!title||!content) return showToast('Title and content required','error');
+    try {
+      await apiFetch('/notes',{method:'POST',body:JSON.stringify({title,content,emoji})});
+      closeModal('addNoteModal');
+      ['noteTitle','noteContent'].forEach(id=>document.getElementById(id).value='');
+      showToast('Note added!','success'); loadNotes();
+    } catch(e){showToast(e.message,'error');}
+  }
+
+  async function deleteNote(id) {
+    if(!confirm('Delete?')) return;
+    try{await apiFetch('/notes/'+id,{method:'DELETE'});showToast('Deleted','error');loadNotes();}
+    catch(e){showToast(e.message,'error');}
+  }
+
+  loadPeople(); loadMedicines(); loadAppointments(); loadNotes();
+</script>
+</body>
+</html>

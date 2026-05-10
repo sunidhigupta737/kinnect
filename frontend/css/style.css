@@ -1,0 +1,101 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Lora:wght@400;600&display=swap');
+
+:root {
+  --orange:      #F4845F;
+  --orange-dark: #E06A45;
+  --orange-light:#FFF0EA;
+  --yellow:      #F9C784;
+  --yellow-light:#FEF3DC;
+  --green:       #7BC67E;
+  --green-dark:  #5AAD5E;
+  --green-light: #EBF7EB;
+  --bg:          #FFF8F0;
+  --white:       #FFFFFF;
+  --text:        #2C2C2C;
+  --text-light:  #888;
+  --border:      #EEE3D6;
+  --red:         #E05C5C;
+  --red-light:   #FDEAEA;
+  --shadow:      0 2px 16px rgba(244,132,95,0.10);
+  --shadow-lg:   0 8px 40px rgba(244,132,95,0.16);
+  --radius:      16px;
+  --radius-sm:   10px;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Nunito',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+a  { text-decoration:none; color:inherit; }
+ul { list-style:none; }
+
+.btn {
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  padding:11px 22px; border:none; border-radius:var(--radius-sm);
+  font-family:'Nunito',sans-serif; font-size:15px; font-weight:700;
+  cursor:pointer; transition:all .2s; white-space:nowrap;
+}
+.btn-primary { background:var(--orange); color:#fff; }
+.btn-primary:hover { background:var(--orange-dark); transform:translateY(-1px); box-shadow:0 4px 14px rgba(244,132,95,.35); }
+.btn-green   { background:var(--green); color:#fff; }
+.btn-green:hover { background:var(--green-dark); transform:translateY(-1px); }
+.btn-outline { background:none; border:2px solid var(--border); color:var(--text-light); }
+.btn-outline:hover { border-color:var(--orange); color:var(--orange); }
+.btn-danger  { background:var(--red-light); color:var(--red); border:none; }
+.btn-danger:hover { background:var(--red); color:#fff; }
+.btn-sm   { padding:7px 14px; font-size:13px; }
+.btn-full { width:100%; }
+
+.form-group { margin-bottom:16px; }
+.form-group label { display:block; font-size:12px; font-weight:800; color:var(--text-light); margin-bottom:6px; text-transform:uppercase; letter-spacing:.6px; }
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width:100%; padding:11px 14px; border:2px solid var(--border);
+  border-radius:var(--radius-sm); font-family:'Nunito',sans-serif;
+  font-size:15px; background:var(--bg); color:var(--text); outline:none; transition:border .2s;
+}
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus { border-color:var(--orange); background:var(--white); }
+.form-group textarea { resize:vertical; min-height:80px; }
+
+.card { background:var(--white); border-radius:var(--radius); padding:24px; box-shadow:var(--shadow); border:1px solid var(--border); }
+
+#toast {
+  position:fixed; bottom:28px; left:50%;
+  transform:translateX(-50%) translateY(16px);
+  background:var(--text); color:#fff;
+  padding:12px 26px; border-radius:30px;
+  font-size:14px; font-weight:700;
+  opacity:0; pointer-events:none;
+  transition:all .3s; z-index:9999; white-space:nowrap;
+}
+#toast.show    { opacity:1; transform:translateX(-50%) translateY(0); }
+#toast.success { background:var(--green); }
+#toast.error   { background:var(--red); }
+
+.overlay {
+  position:fixed; inset:0; background:rgba(44,44,44,.5);
+  z-index:1000; display:flex; align-items:center; justify-content:center;
+  padding:20px; opacity:0; pointer-events:none; transition:opacity .25s;
+}
+.overlay.open { opacity:1; pointer-events:all; }
+.modal {
+  background:var(--white); border-radius:var(--radius); padding:28px;
+  width:100%; max-width:500px; box-shadow:var(--shadow-lg);
+  transform:translateY(20px); transition:transform .25s; max-height:90vh; overflow-y:auto;
+}
+.overlay.open .modal { transform:translateY(0); }
+.modal-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
+.modal-head h3 { font-size:18px; font-weight:800; }
+.modal-close { background:none; border:none; font-size:22px; cursor:pointer; color:var(--text-light); }
+.modal-close:hover { color:var(--red); }
+
+.badge { display:inline-block; padding:3px 12px; border-radius:20px; font-size:12px; font-weight:700; }
+.badge-green  { background:var(--green-light); color:var(--green-dark); }
+.badge-orange { background:var(--orange-light); color:var(--orange-dark); }
+
+.empty { text-align:center; padding:48px 20px; color:var(--text-light); }
+.empty .e-icon { font-size:52px; margin-bottom:12px; }
+.empty p { font-size:15px; }
+
+.hidden { display:none !important; }

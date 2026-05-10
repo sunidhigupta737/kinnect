@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Kinnect — Login</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧡</text></svg>">
+  <link rel="stylesheet" href="/css/style.css"/>
+  <style>
+    body { display:flex; min-height:100vh; }
+    .left { flex:1; background:linear-gradient(145deg,var(--orange) 0%,#F9A87A 100%); padding:40px 50px; display:flex; flex-direction:column; color:#fff; }
+    .left .logo { font-family:'Lora',serif; font-size:24px; font-weight:600; color:#fff; margin-bottom:auto; }
+    .left-content { margin:auto 0; }
+    .left h2 { font-family:'Lora',serif; font-size:34px; font-weight:600; line-height:1.3; margin-bottom:14px; }
+    .left p  { font-size:15px; opacity:.88; line-height:1.7; margin-bottom:28px; max-width:360px; }
+    .feats { display:flex; flex-direction:column; gap:10px; }
+    .feat { background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.25); border-radius:var(--radius-sm); padding:11px 16px; font-size:14px; font-weight:600; display:flex; align-items:center; gap:10px; }
+    .right { flex:1; display:flex; align-items:center; justify-content:center; padding:40px 30px; background:var(--bg); }
+    .auth-box { width:100%; max-width:400px; background:var(--white); border-radius:var(--radius); padding:36px 32px; box-shadow:var(--shadow-lg); border:1px solid var(--border); }
+    .tabs { display:flex; border-bottom:2px solid var(--border); margin-bottom:26px; }
+    .tab { flex:1; background:none; border:none; padding:10px 0 14px; font-family:'Nunito',sans-serif; font-size:15px; font-weight:700; color:var(--text-light); cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-2px; transition:all .2s; }
+    .tab.active { color:var(--orange); border-bottom-color:var(--orange); }
+    .switch-text { text-align:center; font-size:13px; color:var(--text-light); margin-top:14px; }
+    .switch-text span { color:var(--orange); font-weight:700; cursor:pointer; }
+    @media(max-width:768px){ body{flex-direction:column;} .left{padding:28px 24px;min-height:auto;} .right{padding:28px 20px;} .auth-box{padding:24px 18px;} }
+  </style>
+</head>
+<body>
+  <div id="toast"></div>
+  <div class="left">
+    <a href="../index.html" class="logo">🧡 Kinnect</a>
+    <div class="left-content">
+      <h2>Helping families stay connected</h2>
+      <p>Set up your patient's world — add their loved ones, medicines, and daily reminders.</p>
+      <div class="feats">
+        <div class="feat"><span>👥</span> Add family & friends with photos</div>
+        <div class="feat"><span>💊</span> Medicine reminders</div>
+        <div class="feat"><span>📅</span> Appointments & memory notes</div>
+        <div class="feat"><span>📱</span> Dedicated patient screen</div>
+      </div>
+    </div>
+  </div>
+  <div class="right">
+    <div class="auth-box">
+      <div class="tabs">
+        <button class="tab active" onclick="switchTab('login')">Login</button>
+        <button class="tab" onclick="switchTab('signup')">Sign Up</button>
+      </div>
+      <div id="loginForm">
+        <div class="form-group"><label>Email</label><input type="email" id="loginEmail" placeholder="your@email.com"/></div>
+        <div class="form-group"><label>Password</label><input type="password" id="loginPassword" placeholder="Enter password"/></div>
+        <button class="btn btn-primary btn-full" onclick="handleLogin()">Login →</button>
+        <p class="switch-text">No account? <span onclick="switchTab('signup')">Sign up</span></p>
+      </div>
+      <div id="signupForm" class="hidden">
+        <div class="form-group"><label>Your Name</label><input type="text" id="signupName" placeholder="e.g. Sara Khan"/></div>
+        <div class="form-group"><label>Patient's Name</label><input type="text" id="signupPatientName" placeholder="e.g. Nana, Dadi"/></div>
+        <div class="form-group"><label>Email</label><input type="email" id="signupEmail" placeholder="your@email.com"/></div>
+        <div class="form-group"><label>Password</label><input type="password" id="signupPassword" placeholder="Min 6 characters"/></div>
+        <button class="btn btn-primary btn-full" onclick="handleSignup()">Create Account →</button>
+        <p class="switch-text">Have an account? <span onclick="switchTab('login')">Login</span></p>
+      </div>
+    </div>
+  </div>
+  <script src="/js/utils.js"></script>
+  <script>
+    if (getToken()) window.location.href = 'dashboard.html';
+    function switchTab(tab) {
+      document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active',(tab==='login'&&i===0)||(tab==='signup'&&i===1)));
+      document.getElementById('loginForm').classList.toggle('hidden', tab !== 'login');
+      document.getElementById('signupForm').classList.toggle('hidden', tab !== 'signup');
+    }
+    async function handleLogin() {
+      const email = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value;
+      if (!email || !password) return showToast('Fill in all fields','error');
+      try {
+        const data = await apiFetch('/auth/login',{method:'POST',body:JSON.stringify({email,password})});
+        setToken(data.token); setUser(data.user);
+        window.location.href = 'dashboard.html';
+      } catch(e) { showToast(e.message,'error'); }
+    }
+    async function handleSignup() {
+      const name = document.getElementById('signupName').value.trim();
+      const patientName = document.getElementById('signupPatientName').value.trim();
+      const email = document.getElementById('signupEmail').value.trim();
+      const password = document.getElementById('signupPassword').value;
+      if (!name||!email||!password) return showToast('Fill in all fields','error');
+      if (password.length < 6) return showToast('Password must be 6+ characters','error');
+      try {
+        const data = await apiFetch('/auth/signup',{method:'POST',body:JSON.stringify({name,email,password,patientName})});
+        setToken(data.token); setUser(data.user);
+        window.location.href = 'dashboard.html';
+      } catch(e) { showToast(e.message,'error'); }
+    }
+    document.addEventListener('keydown', e => {
+      if (e.key==='Enter') {
+        document.getElementById('loginForm').classList.contains('hidden') ? handleSignup() : handleLogin();
+      }
+    });
+  </script>
+</body>
+</html>

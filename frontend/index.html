@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Kinnect</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧡</text></svg>">
+  <link rel="stylesheet" href="/css/style.css"/>
+  <link rel="stylesheet" href="/css/patient.css"/>
+</head>
+<body>
+<div id="toast"></div>
+
+<!-- HOME -->
+<div id="homeScreen" class="patient-wrap">
+  <div class="patient-header">
+    <h1>🧡 Kinnect</h1>
+    <div class="patient-name" id="patientNameDisplay">—</div>
+    <div class="patient-greeting" id="patientGreeting"></div>
+  </div>
+  <button class="big-btn orange" onclick="showScreen('whoScreen')">
+    <div class="btn-emoji">👤</div>
+    <div class="btn-text"><h2>Who is this person?</h2><p>Scan or browse to find out</p></div>
+  </button>
+  <button class="big-btn green" onclick="showScreen('medsScreen')">
+    <div class="btn-emoji">💊</div>
+    <div class="btn-text"><h2>My medicines today</h2><p>See what to take</p></div>
+  </button>
+  <button class="big-btn yellow" onclick="showScreen('dateScreen')">
+    <div class="btn-emoji">📅</div>
+    <div class="btn-text"><h2>What day is it?</h2><p>Date and time</p></div>
+  </button>
+  <button class="big-btn blue" onclick="showScreen('contactsScreen')">
+    <div class="btn-emoji">📞</div>
+    <div class="btn-text"><h2>Important contacts</h2><p>Call someone you love</p></div>
+  </button>
+</div>
+
+<!-- WHO IS THIS — choose method -->
+<div id="whoScreen" class="patient-sub hidden">
+  <button class="back-btn" onclick="showScreen('homeScreen')">← Back</button>
+  <h2 style="font-size:24px;font-weight:900;margin-bottom:24px;">👤 Who is this person?</h2>
+  <button class="big-btn orange" onclick="showScreen('faceScreen')">
+    <div class="btn-emoji">📸</div>
+    <div class="btn-text"><h2>Scan their face</h2><p>Use camera to identify</p></div>
+  </button>
+  <button class="big-btn blue" onclick="showScreen('browseScreen')">
+    <div class="btn-emoji">👥</div>
+    <div class="btn-text"><h2>Browse people</h2><p>Look through photos manually</p></div>
+  </button>
+</div>
+
+<!-- FACE SCAN -->
+<div id="faceScreen" class="patient-sub hidden">
+  <button class="back-btn" onclick="showScreen('whoScreen')">← Back</button>
+  <h2 style="font-size:24px;font-weight:900;margin-bottom:20px;">📸 Scan Face</h2>
+  <div class="face-area">
+    <video id="video" autoplay playsinline></video>
+    <br/>
+    <button class="scan-btn" onclick="scanFace()">📸 Scan Now</button>
+    <canvas id="canvas" style="display:none"></canvas>
+  </div>
+  <div id="faceResult" class="face-result hidden"></div>
+  <p style="text-align:center;color:var(--text-light);font-size:13px;margin-top:16px;">Point camera at the person and tap Scan</p>
+</div>
+
+<!-- BROWSE PEOPLE -->
+<div id="browseScreen" class="patient-sub hidden">
+  <button class="back-btn" onclick="showScreen('whoScreen')">← Back</button>
+  <h2 style="font-size:24px;font-weight:900;margin-bottom:20px;">👥 Browse People</h2>
+  <p style="font-size:15px;color:var(--text-light);margin-bottom:20px;">Tap the person you see in front of you</p>
+  <div id="browseList"></div>
+</div>
+
+<!-- PERSON DETAIL -->
+<div id="personDetail" class="patient-sub hidden">
+  <button class="back-btn" onclick="showScreen('browseScreen')">← Back</button>
+  <div id="personDetailContent" style="text-align:center;padding:20px 0"></div>
+</div>
+
+<!-- MEDICINES -->
+<div id="medsScreen" class="patient-sub hidden">
+  <button class="back-btn" onclick="showScreen('homeScreen')">← Back</button>
+  <h2 style="font-size:24px;font-weight:900;margin-bottom:20px;">💊 My Medicines Today</h2>
+  <div id="patientMedsList"></div>
+</div>
+
+<!-- DATE -->
+<div id="dateScreen" class="patient-sub hidden">
+  <button class="back-btn" onclick="showScreen('homeScreen')">← Back</button>
+  <div class="date-display">
+    <div class="date-weekday" id="dateWeekday">—</div>
+    <div class="date-day" id="dateDay">—</div>
+    <div class="date-month" id="dateMonth">—</div>
+    <div class="date-time" id="dateTime">—</div>
+  </div>
+</div>
+
+<!-- CONTACTS -->
+<div id="contactsScreen" class="patient-sub hidden">
+  <button class="back-btn" onclick="showScreen('homeScreen')">← Back</button>
+  <h2 style="font-size:24px;font-weight:900;margin-bottom:20px;">📞 Important Contacts</h2>
+  <div id="patientContactsList"></div>
+</div>
+
+<script src="/js/utils.js"></script>
+<script>
+  const patientId = location.pathname.split('/').pop();
+  let patientData = null;
+
+  async function loadPatientData() {
+    try {
+      patientData = await apiFetch('/patient/' + patientId);
+      document.getElementById('patientNameDisplay').textContent = patientData.patientName || 'Hello';
+      const hr = new Date().getHours();
+      document.getElementById('patientGreeting').textContent = hr<12?'🌅 Good morning':hr<17?'☀️ Good afternoon':'🌙 Good evening';
+      renderMeds();
+      renderContacts();
+      renderBrowse();
+    } catch(e) {
+      document.getElementById('patientNameDisplay').textContent = 'Welcome';
+    }
+  }
+
+  function showScreen(id) {
+    document.querySelectorAll('.patient-wrap,.patient-sub').forEach(el=>el.classList.add('hidden'));
+    document.getElementById(id).classList.remove('hidden');
+    if(id==='faceScreen') startCamera();
+    if(id==='dateScreen') startClock();
+  }
+
+  // CLOCK
+  let clockInterval;
+  function startClock() {
+    updateClock();
+    clearInterval(clockInterval);
+    clockInterval = setInterval(updateClock, 1000);
+  }
+  function updateClock() {
+    const now = new Date();
+    const days   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    document.getElementById('dateWeekday').textContent = days[now.getDay()];
+    document.getElementById('dateDay').textContent     = now.getDate();
+    document.getElementById('dateMonth').textContent   = months[now.getMonth()] + ' ' + now.getFullYear();
+    document.getElementById('dateTime').textContent    = now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+  }
+
+  // MEDICINES
+  function renderMeds() {
+    const el   = document.getElementById('patientMedsList');
+    const meds = patientData?.medicines || [];
+    if(!meds.length){el.innerHTML='<div class="empty"><div class="e-icon">💊</div><p>No medicines added yet.</p></div>';return;}
+    el.innerHTML = meds.map(m=>`
+      <div class="p-med-item ${m.taken?'taken':''}" id="pmed-${m._id}">
+        <div><div class="p-med-name">${m.name}</div><div class="p-med-info">⏰ ${m.time} · 💊 ${m.dose}</div></div>
+        ${m.taken?'<span class="badge badge-green">✓ Taken</span>':`<button class="p-taken-btn" onclick="patientMarkTaken('${m._id}',this)">✓ Taken</button>`}
+      </div>`).join('');
+  }
+
+  function patientMarkTaken(id, btn) {
+    const item = document.getElementById('pmed-'+id);
+    item.classList.add('taken');
+    btn.outerHTML = '<span class="badge badge-green">✓ Taken</span>';
+    showToast('Great job! 👍','success');
+  }
+
+  // CONTACTS
+  function renderContacts() {
+    const el     = document.getElementById('patientContactsList');
+    const people = patientData?.people || [];
+    if(!people.length){el.innerHTML='<div class="empty"><div class="e-icon">👥</div><p>No contacts yet.</p></div>';return;}
+    el.innerHTML = people.map(p=>`
+      <div class="p-contact">
+        ${p.photo?`<img class="p-contact-photo" src="${p.photo}" alt="${p.name}"/>`:`<div class="p-contact-placeholder">👤</div>`}
+        <div>
+          <div class="p-contact-name">${p.name}</div>
+          <div class="p-contact-relation">${p.relation}</div>
+          ${p.note?`<div style="font-size:13px;color:var(--text-light);margin-top:4px">${p.note}</div>`:''}
+        </div>
+        ${p.phone?`<a href="tel:${p.phone}" class="p-call-btn">📞</a>`:''}
+      </div>`).join('');
+  }
+
+  // BROWSE PEOPLE
+  function renderBrowse() {
+    const el     = document.getElementById('browseList');
+    const people = patientData?.people || [];
+    if(!people.length){el.innerHTML='<div class="empty"><div class="e-icon">👥</div><p>No people added yet.</p></div>';return;}
+    el.innerHTML = people.map(p=>`
+      <div onclick="showPersonDetail('${p._id}')" style="display:flex;align-items:center;gap:16px;padding:16px;border:2px solid var(--border);border-radius:16px;margin-bottom:12px;cursor:pointer;background:var(--white);transition:all .2s" onmouseover="this.style.borderColor='var(--orange)'" onmouseout="this.style.borderColor='var(--border)'">
+        ${p.photo
+          ?`<img src="${p.photo}" style="width:64px;height:64px;border-radius:50%;object-fit:cover;border:3px solid var(--orange-light);flex-shrink:0"/>`
+          :`<div style="width:64px;height:64px;border-radius:50%;background:var(--orange-light);display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0">👤</div>`}
+        <div>
+          <div style="font-size:20px;font-weight:900">${p.name}</div>
+          <div style="font-size:14px;color:var(--text-light);margin-top:4px">${p.relation}</div>
+        </div>
+        <div style="margin-left:auto;font-size:22px">→</div>
+      </div>`).join('');
+  }
+
+  function showPersonDetail(id) {
+    const p = patientData.people.find(p=>p._id===id);
+    if(!p) return;
+    document.getElementById('personDetailContent').innerHTML = `
+      ${p.photo
+        ?`<img src="${p.photo}" style="width:120px;height:120px;border-radius:50%;object-fit:cover;border:4px solid var(--orange);margin-bottom:16px"/>`
+        :`<div style="width:120px;height:120px;border-radius:50%;background:var(--orange-light);display:flex;align-items:center;justify-content:center;font-size:52px;margin:0 auto 16px">👤</div>`}
+      <h2 style="font-size:28px;font-weight:900;margin-bottom:8px">${p.name}</h2>
+      <div style="display:inline-block;background:var(--orange-light);color:var(--orange-dark);padding:4px 16px;border-radius:20px;font-size:15px;font-weight:700;margin-bottom:16px">${p.relation}</div>
+      ${p.note?`<p style="font-size:16px;color:var(--text-light);line-height:1.6;margin-bottom:20px">${p.note}</p>`:''}
+      ${p.phone?`<a href="tel:${p.phone}" style="display:inline-flex;align-items:center;gap:10px;background:var(--green);color:white;padding:14px 28px;border-radius:12px;font-size:18px;font-weight:800;text-decoration:none">📞 Call ${p.name}</a>`:''}
+    `;
+    showScreen('personDetail');
+  }
+
+  // FACE SCAN
+  async function startCamera() {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'}});
+      document.getElementById('video').srcObject = stream;
+    } catch(e){ showToast('Camera access denied','error'); }
+  }
+
+  function scanFace() {
+    const people = patientData?.people || [];
+    const result = document.getElementById('faceResult');
+    result.classList.remove('hidden');
+    if(!people.length){
+      result.innerHTML='<p>No people added yet. Ask your caretaker to add family members.</p>';
+      return;
+    }
+    result.innerHTML = `
+      <p style="font-size:15px;font-weight:700;margin-bottom:14px">Tap the person you see:</p>
+      ${people.map(p=>`
+        <div onclick="showPersonDetail('${p._id}')" style="display:flex;align-items:center;gap:12px;padding:12px;border:2px solid var(--border);border-radius:12px;margin-bottom:8px;cursor:pointer;background:var(--bg)">
+          ${p.photo?`<img src="${p.photo}" style="width:48px;height:48px;border-radius:50%;object-fit:cover"/>`:`<div style="width:48px;height:48px;border-radius:50%;background:var(--orange-light);display:flex;align-items:center;justify-content:center;font-size:22px">👤</div>`}
+          <strong style="font-size:16px">${p.name}</strong>
+        </div>`).join('')}`;
+  }
+
+  loadPatientData();
+</script>
+</body>
+</html>
