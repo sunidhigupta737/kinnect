@@ -1,56 +1,98 @@
-body { background:#FFF8F0; }
+/* PATIENT SCREEN */
+body { background:var(--bg); }
 
 .patient-wrap { max-width:500px; margin:0 auto; padding:24px 20px; }
 
 .patient-header { text-align:center; padding:24px 0 32px; }
-.patient-header h1 { font-family:'Lora',serif; font-size:28px; color:var(--orange); margin-bottom:6px; }
-.patient-name     { font-size:22px; font-weight:800; color:var(--text); margin-bottom:4px; }
+.patient-header h1 { font-size:28px; color:var(--blue); margin-bottom:6px; }
+.patient-name { font-size:22px; font-weight:800; color:var(--text); margin-bottom:4px; }
 .patient-greeting { font-size:17px; color:var(--text-light); }
 
+/* BIG BUTTONS */
 .big-btn {
   display:flex; align-items:center; gap:20px;
   width:100%; padding:24px 28px; margin-bottom:16px;
   background:var(--white); border:2px solid var(--border);
-  border-radius:20px; cursor:pointer; transition:all .2s;
-  box-shadow:var(--shadow); text-align:left; font-family:'Nunito',sans-serif;
+  border-radius:var(--radius); cursor:pointer; transition:border-color .2s;
+  box-shadow:var(--shadow); text-align:left;
+  font-family:inherit;
 }
-.big-btn:hover { transform:translateY(-3px); box-shadow:var(--shadow-lg); border-color:var(--orange); }
-.big-btn .btn-emoji { font-size:44px; flex-shrink:0; }
+.big-btn:hover { border-color:var(--blue); }
 .big-btn .btn-text h2 { font-size:20px; font-weight:900; color:var(--text); }
 .big-btn .btn-text p  { font-size:14px; color:var(--text-light); margin-top:4px; }
-.big-btn.orange { border-color:var(--orange); background:var(--orange-light); }
-.big-btn.green  { border-color:var(--green);  background:var(--green-light); }
-.big-btn.yellow { border-color:var(--yellow); background:var(--yellow-light); }
-.big-btn.blue   { border-color:#90CAF9; background:#EBF5FF; }
 
+.big-btn.blue { border-color:var(--blue); background:var(--blue-light); }
+.big-btn.green  { border-color:var(--green);  background:var(--green-light);  }
+.big-btn.mint { border-color:var(--mint); background:var(--mint-light); }
+.big-btn.plain  { border-color:var(--blue);       background:var(--blue-light); }
+
+/* PATIENT SUBPAGES */
 .patient-sub { padding:20px; max-width:500px; margin:0 auto; }
-.back-btn { display:inline-flex; align-items:center; gap:8px; background:none; border:none; font-family:'Nunito',sans-serif; font-size:16px; font-weight:700; color:var(--text-light); cursor:pointer; margin-bottom:24px; padding:0; }
-.back-btn:hover { color:var(--orange); }
+.back-btn {
+  display:inline-flex; align-items:center; gap:8px;
+  background:none; border:none; font-family:inherit;
+  font-size:16px; font-weight:700; color:var(--text-light);
+  cursor:pointer; margin-bottom:24px; padding:0;
+}
+.back-btn:hover { color:var(--blue); }
 
+/* DATE PAGE */
 .date-display { text-align:center; padding:40px 20px; }
-.date-day     { font-size:72px; font-weight:900; color:var(--orange); line-height:1; }
-.date-month   { font-size:32px; font-weight:700; color:var(--text); margin:8px 0; }
-.date-time    { font-size:48px; font-weight:900; color:var(--text); margin-top:20px; }
+.date-day   { font-size:72px; font-weight:900; color:var(--blue); line-height:1; }
+.date-month { font-size:32px; font-weight:700; color:var(--text); margin:8px 0; }
+.date-time  { font-size:48px; font-weight:900; color:var(--text); margin-top:20px; }
 .date-weekday { font-size:22px; color:var(--text-light); margin-top:8px; }
 
-.p-med-item { background:var(--white); border:2px solid var(--border); border-radius:16px; padding:20px 24px; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center; }
+/* MED ITEM PATIENT */
+.p-med-item {
+  background:var(--white); border:2px solid var(--border);
+  border-radius:var(--radius); padding:20px 24px; margin-bottom:12px;
+  display:flex; justify-content:space-between; align-items:center;
+}
 .p-med-item.taken { opacity:.55; background:var(--green-light); border-color:var(--green); }
-.p-med-name { font-size:20px; font-weight:900; }
-.p-med-info { font-size:15px; color:var(--text-light); margin-top:4px; }
-.p-taken-btn { background:var(--green); color:#fff; border:none; padding:12px 20px; border-radius:10px; font-size:15px; font-weight:800; cursor:pointer; font-family:'Nunito',sans-serif; }
+.p-med-name  { font-size:20px; font-weight:900; }
+.p-med-info  { font-size:15px; color:var(--text-light); margin-top:4px; }
+.p-taken-btn {
+  background:var(--green); color:#fff; border:none;
+  padding:12px 20px; border-radius:10px; font-size:15px; font-weight:800;
+  cursor:pointer; font-family:inherit;
+}
 
-.p-contact { background:var(--white); border:2px solid var(--border); border-radius:16px; padding:20px 24px; margin-bottom:12px; display:flex; align-items:center; gap:16px; }
-.p-contact-photo { width:64px; height:64px; border-radius:50%; object-fit:cover; border:3px solid var(--orange-light); flex-shrink:0; }
-.p-contact-placeholder { width:64px; height:64px; border-radius:50%; background:var(--orange-light); display:flex; align-items:center; justify-content:center; font-size:28px; flex-shrink:0; }
+/* CONTACT ITEM */
+.p-contact {
+  background:var(--white); border:2px solid var(--border);
+  border-radius:var(--radius); padding:20px 24px; margin-bottom:12px;
+  display:flex; align-items:center; gap:16px;
+}
+.p-contact-photo {
+  width:64px; height:64px; border-radius:50%; object-fit:cover;
+  border:3px solid var(--blue-light); flex-shrink:0;
+}
+.p-contact-placeholder {
+  width:64px; height:64px; border-radius:50%; background:var(--blue-light);
+  display:flex; align-items:center; justify-content:center; font-size:28px; flex-shrink:0;
+}
 .p-contact-name     { font-size:20px; font-weight:900; }
 .p-contact-relation { font-size:14px; color:var(--text-light); margin-top:2px; }
-.p-call-btn { margin-left:auto; background:var(--green); color:#fff; border:none; padding:12px 18px; border-radius:10px; font-size:20px; cursor:pointer; }
+.p-call-btn {
+  margin-left:auto; background:var(--green); color:#fff;
+  border:none; padding:12px 18px; border-radius:10px;
+  font-size:20px; cursor:pointer;
+}
 
+/* FACE SCAN */
 .face-area { text-align:center; padding:20px 0; }
-.face-area video { width:100%; border-radius:var(--radius); border:3px solid var(--orange-light); }
-.scan-btn { margin-top:16px; background:var(--orange); color:#fff; border:none; padding:16px 32px; border-radius:12px; font-size:18px; font-weight:800; cursor:pointer; font-family:'Nunito',sans-serif; }
-.face-result { background:var(--white); border:2px solid var(--green); border-radius:var(--radius); padding:24px; margin-top:20px; text-align:center; }
-.face-result img { width:90px; height:90px; border-radius:50%; object-fit:cover; margin-bottom:12px; border:3px solid var(--orange); }
+.face-area video { width:100%; border-radius:var(--radius); border:3px solid var(--blue-light); }
+.scan-btn {
+  margin-top:16px; background:var(--blue); color:#fff;
+  border:none; padding:16px 32px; border-radius:12px;
+  font-size:18px; font-weight:800; cursor:pointer; font-family:inherit;
+}
+.face-result {
+  background:var(--white); border:2px solid var(--green);
+  border-radius:var(--radius); padding:24px; margin-top:20px; text-align:center;
+}
+.face-result img { width:90px; height:90px; border-radius:50%; object-fit:cover; margin-bottom:12px; border:3px solid var(--blue); }
 .face-result h2  { font-size:24px; font-weight:900; margin-bottom:4px; }
 .face-result p   { font-size:16px; color:var(--text-light); }
-.relation-badge  { font-size:14px; font-weight:700; background:var(--orange-light); color:var(--orange-dark); padding:4px 14px; border-radius:20px; display:inline-block; margin:8px 0; }
+.face-result .relation-badge { font-size:14px; font-weight:700; background:var(--blue-light); color:var(--blue-dark); padding:4px 14px; border-radius:20px; display:inline-block; margin:8px 0; }
